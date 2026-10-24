@@ -50,11 +50,10 @@ HOME_TEMPLATE = """
             align-items: center;
             justify-content: center;
             padding: 40px 20px;
-            overflow-y: auto; /* Включаем красивый скролл */
+            overflow-y: auto; 
             position: relative;
         }
 
-        /* Анимированный космический фон с градиентами */
         .bg-glow-1 {
             position: fixed;
             width: 450px;
@@ -85,7 +84,6 @@ HOME_TEMPLATE = """
             100% { transform: scale(1.2) translate(30px, -30px); }
         }
 
-        /* Мерцающие звездочки на фоне */
         .star {
             position: fixed;
             background: #ffffff;
@@ -216,7 +214,6 @@ HOME_TEMPLATE = """
     <div class="bg-glow-1"></div>
     <div class="bg-glow-2"></div>
 
-    <!-- Генерация маленьких мерцающих звезд через JS -->
     <script>
         for (let i = 0; i < 35; i++) {
             const star = document.createElement('div');
@@ -265,6 +262,27 @@ HOME_TEMPLATE = """
             <div id="result">
                 <span class="prediction-text" id="predictionText" style="color: #64748b;">Выберите знак и дату ✨</span>
             </div>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); text-align: left;">
+                <div style="font-size: 11px; font-weight: 600; color: #a7f3d0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">📊 Мониторинг системы</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; color: #94a3b8;">
+                    <div style="background: rgba(9,13,22,0.6); padding: 10px; border-radius: 10px;">
+                        Статус: <span id="mStatus" style="color: #2ee59d; font-weight: bold;">Загрузка...</span>
+                    </div>
+                    <div style="background: rgba(9,13,22,0.6); padding: 10px; border-radius: 10px;">
+                        Посещений: <span id="mVisits" style="color: #fde047; font-weight: bold;">0</span>
+                    </div>
+                    <div style="background: rgba(9,13,22,0.6); padding: 10px; border-radius: 10px;">
+                        CPU: <span id="mCpu" style="color: #38bdf8; font-weight: bold;">0%</span>
+                    </div>
+                    <div style="background: rgba(9,13,22,0.6); padding: 10px; border-radius: 10px;">
+                        RAM: <span id="mRam" style="color: #c084fc; font-weight: bold;">0%</span>
+                    </div>
+                </div>
+                <div style="margin-top: 10px; text-align: center;">
+                    <a href="/metrics" target="_blank" style="font-size: 11px; color: #38bdf8; text-decoration: none;">🔗 Сырой JSON /metrics</a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -295,6 +313,23 @@ HOME_TEMPLATE = """
                 textElement.innerText = "Не удалось получить предсказание.";
             }
         }
+        
+                async function fetchMetrics() {
+            try {
+                const res = await fetch('/metrics');
+                const data = await res.json();
+                document.getElementById('mStatus').innerText = data.app_metrics.status;
+                document.getElementById('mVisits').innerText = data.app_metrics.total_page_visits;
+                document.getElementById('mCpu').innerText = data.system_resources.cpu_usage_percent + '%';
+                document.getElementById('mRam').innerText = data.system_resources.ram_usage_percent + '%';
+            } catch (e) {
+                console.error("Ошибка загрузки метрик");
+            }
+        }
+
+        fetchMetrics();
+        setInterval(fetchMetrics, 3000);
+        
     </script>
 </body>
 </html>
